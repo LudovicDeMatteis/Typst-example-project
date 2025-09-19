@@ -46,8 +46,25 @@
   outline: true,
 )
 
-#content_slide(title: "Introduction")[
-  On on s'est arrete en 1ere annee
+#let ddot = math.dot.double
+
+#content_slide(title: "Introduction", outline: false)[
+  #block(width: 60%, height: auto, [
+    - Modelisation de robots avec des chaines cinematiques bouclees
+      $ M(q) ddot(q) + b(q, dot(q)) = tau(u) + J_c (q)^T lambda $
+    - Calcul des dérivees de la dynamique
+      $ (d ddot(q))/(d z); (d lambda)/(d z) #h(1cm) z in {q, dot(q), u} $
+    - Application dans le cadre d'un probleme de control optimal
+      $
+        & min_(U in cal(U), X in cal(X)) && sum_(k = 0)^(N-1) l(x_k, u_k; k) + V_f (x_N)          \
+        & s.t.                           && x_0 = x(t_0)                                          \
+        &                                && x_(k+1) = f_k (x_k, u_k) #h(1cm) forall k in [0, N-1] \
+      $
+  ])
+  #place(top + right, image(width: 40%, "Images/bipetto.jpg"))
+  - Implementation de la dynamique et de ses derivees dans une librairie de control optimal (Crocoddyl)
+  - Comparaison des performances de cette modelisation avec celles d'un modele plus simple
+  - Ecriture et soumission d'un papier ICRA 2025
 ]
 
 #content_slide(title: "Table des matières", outline: false)[
@@ -62,16 +79,86 @@
 )
 
 #content_slide(title: "Dynamique en chaîne fermée")[
-  Ajouter les derniers travaux sur les chaines fermees: Fin des travaux de 1ere annee sur le papier IROS, fin des travaux avec Victor sur les modeles d'actionnement et papier ICRA, mention du passage sur le robot de Virgile.
+  #align(center)[=== Continuation des travaux de 1ere annee]
+  ==== Reprise du papier ICRA en vue d'une resoumission a IROS 2025
+  - Ajout de comparaison
+  - Reformulation de certaines parties
+  - Mise en avant des limites de la methode
+    - Le solveur semble avoir des difficultes pour converger
+    - Ceci rend la resolution assez lente et incertaine
+
+  ==== Test de la modelisation sur le robot réel (avec Virgile Batto)
+  - Calcul d'une trajectoire de squat pour une jambe du Bipetto
+  - Passage sur le robot réel en suivi de trajectoire
+  // Ajouter les derniers travaux sur les chaines fermees: Fin des travaux de 1ere annee sur le papier IROS, fin des travaux avec Victor sur les modeles d'actionnement et papier ICRA, mention du passage sur le robot de Virgile.
 ]
 
-#content_slide(title: "Optimisation des sequences de contact")[
+#content_slide(title: "Dynamique en chaîne fermée")[
+  #align(center)[=== Modele d'actionnement]
+  #block(width: 70%, height: auto, [
+    ==== Une alternative moins complexe
+    - Modelisation des actionnements non-lineaires dans les robots avec une architecture serie-parallele
+    - Utilisation du modele serie du robot (chaine fermees negligees)
+      $ x = [q_s, dot(q)_s] $
+  ])
+  #only("-2")[
+    #place(top + right, dx: 0%, dy: 0%, image(width: 20%, "Images/battobot_leg_side.png"))
+  ]
+  #only(2)[
+    #place(top + right, dx: 0%, dy: 0%, image(width: 20%, "Images/battobot_leg_side_serial.png"))
+  ]
+  #only("3-")[
+    #block(width: 70%, height: auto, [
+      - Expression des couples aux articulations a travers l'actionnement
+        $
+          & dot(q)_m = J_a (q_s) dot(q)_s                 \
+          & tau_s = J_a (q_s)^(T) tau_m = J_a (q_s)^(T) u
+        $
+    ])
+    #place(top + right, dx: -5%, dy: 0%, image(width: 20%, "Images/4bar_bipetto.png"))
+    #place(top + right, dx: -2%, dy: 50%, image(width: 25%, "Images/4bar.png"))
+  ]
+  #only("4-")[
+    - Expression des derivees de l'actionnement $ (d J_A)/(d q_s) $
+  ]
+  #only("5-")[
+    - Application en MPC et en Apprentissage par Renforcement
+  ]
+]
+
+#content_slide(title: "Optimisation des séquences de contact")[
   #align(center)[
     #text(size: big, weight: "bold")[
-      #underline[Problématique]
+      #underline[=== Problématique]
     ]
   ]
-  Expliquer la problematique sur la non differentiabilite
+  $
+    & min_(U in cal(U), X in cal(X)) && sum_(k = 0)^(N-1) l(x_k, u_k; k) + V_f (x_N)          \
+    & s.t.                           && x_0 = x(t_0)                                          \
+    &                                && x_(k+1) = f_k (x_k, u_k) #h(1cm) forall k in [0, N-1] \
+  $
+  Jusqu'a maintenant, les instants de contacts etaient fixes
+  - Complexifie l'ecriture des problemes
+  - Limites les applications
+  - Rend le passage au reel plus complexe
+  #only("2-")[
+    On souhaiterais optimiser directement les instants de contact
+    - Utiliser une dynamique unique
+    - Obtenir une derivee de la dynamique
+  ]
+  #only("3-")[
+    #place(bottom + right, dx: 8%, dy: -5%, figure(
+      image(width: 35%, "Images/signorini.png"),
+      caption: [Signorini condition],
+    ))
+  ]
+  #only("4-")[
+    #align(center)[
+      #text(size: big, weight: "bold", fill: red)[
+        La dérivée n'existe pas en tout point
+      ]
+    ]
+  ]
 ]
 
 #content_slide(title: "Optimisation des sequences de contact", outline: false)[
